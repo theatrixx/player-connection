@@ -1,0 +1,19 @@
+{
+  "name": "@theatrixx/player-connection",
+  "version": "1.0.0",
+  "description": "Set of classes for interacting with the Theatrixx MediaPlayer",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/theatrixx/player-connection.git"
+  },
+  "author": "Theatrixx Technologies",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/theatrixx/player-connection/issues"
+  },
+  "homepage": "https://github.com/theatrixx/player-connection#readme"
+}
