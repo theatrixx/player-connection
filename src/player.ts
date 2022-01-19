@@ -1,4 +1,4 @@
-import { StateManager } from 'src';
+import { StateManager } from './state';
 import { PlayerClient } from './player.client';
 
 export class Player {
