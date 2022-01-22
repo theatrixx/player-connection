@@ -1,5 +1,5 @@
 import { PlayerClient } from '../player.client';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { Store } from './state.types';
 import { Type } from '../player.models';
 
@@ -8,6 +8,7 @@ import {
   DeviceStateStore,
   PlaylistStore
 } from './stores';
+import { takeUntil } from 'rxjs/operators';
 
 const ALL_STORES: Type<Store>[] = [
   MediaFileStore,
@@ -22,38 +23,59 @@ const ALL_STORES: Type<Store>[] = [
  */
 export class StateManager {
 
-  private stores = new Map<string, Store>();
+  private readonly stores = new Map<string, Store>();
+  private readonly destroy$ = new Subject<void>();
   
   constructor(
     private readonly client: PlayerClient) {
       this.initialize(ALL_STORES);
   }
 
-  async refresh(storeName: string): Promise<void> {
-    if (this.stores.has(storeName)) {
-      const store = this.stores.get(storeName) as Store<any>;
+  /** Force all stores to refresh their state */
+  async refresh(): Promise<void>
+  /** Force `storeName` to refresh its state */
+  async refresh(storeName: string): Promise<void>
+  async refresh(storeName?: string): Promise<void> {
+    if (storeName) {
+      const store = this.getStore(storeName);
       await store.refresh();
+    } else {
+      for (const store of this.stores.values()) {
+        await store.refresh();
+      }
     }
   }
 
-  set<T>(storeName: string, value: T): void {
-    if (this.stores.has(storeName)) {
-      const store = this.stores.get(storeName) as Store<any>;
-      store.set(value);
+  /** Force all stores to reset to their initial value */
+  reset(): void {
+    for (const store of this.stores.values()) {
+      store.reset();
     }
   }
 
-  get<T>(name: string): T
-  get<T>(type: Type<Store<T>>): T
-  get<T, K extends keyof T>(type: Type<Store<T>>, key: K): T[K]
-  get<T, K extends keyof T>(nameOrType: string | Type<Store<T>>, key?: K): T | T[K] {
+  /** Gets a store by is `name` */
+  getStore<S extends Store>(name: string): S
+  /** Gets a store by its `type` */
+  getStore<S extends Store>(type: Type<S>): S
+  getStore<S extends Store>(nameOrType: string | Type<S>): S
+  getStore<S extends Store>(nameOrType: string | Type<S>): S {
     if (typeof nameOrType !== 'string') {
       nameOrType = this.getStoreNameByType(nameOrType);
     }
     if (!this.stores.has(nameOrType)) {
       throw Error(`Store '${nameOrType}' does not exist!`);
     }
-    const store = this.stores.get(nameOrType) as Store<any>;
+    return this.stores.get(nameOrType) as S;
+  }
+
+  /** Gets the current value of store `name` */
+  get<T>(name: string): T
+  /** Gets the current value of store `type` */
+  get<T>(type: Type<Store<T>>): T
+  /** Gets the current  */
+  get<T, K extends keyof T>(type: Type<Store<T>>, key: K): T[K]
+  get<T, K extends keyof T>(nameOrType: string | Type<Store<T>>, key?: K): T | T[K] {
+    const store = this.getStore(nameOrType);
     return store.get(key);
   }
 
@@ -61,27 +83,21 @@ export class StateManager {
   select<T>(type: Type<Store<T>>): Observable<T>
   select<T, K extends keyof T>(type: Type<Store<T>>, key: K): Observable<T[K]>
   select<T, K extends keyof T>(nameOrType: string | Type<Store<T>>, key?: K): Observable<T | T[K]> {
-    if (typeof nameOrType !== 'string') {
-      nameOrType = this.getStoreNameByType(nameOrType);
-    }
-    if (!this.stores.has(nameOrType)) {
-      throw Error(`Store '${nameOrType}' does not exist!`);
-    }
-    const store = this.stores.get(nameOrType) as Store<any>;
+    const store = this.getStore(nameOrType);
     return store.select(key);
   }
 
-  /** Force all stores to refresh their state */
-  async refreshAll(): Promise<void> {
-    for (const store of this.stores.values()) {
-      await store.refresh();
-    }
+  /** Destroys the state; resets all stores and clean up all subscriptions */
+  destroy(): void {
+    this.reset();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
-  /** Force all stores to reset to their initial value */
-  resetAll(): void {
-    for (const store of this.stores.values()) {
-      store.reset();
+  private set<T>(storeName: string, value: T): void {
+    if (this.stores.has(storeName)) {
+      const store = this.stores.get(storeName) as Store<any>;
+      store.set(value);
     }
   }
 
@@ -98,10 +114,10 @@ export class StateManager {
   }
 
   private subscribeEvents(): void {
-    this.client.fromEvent('connect').subscribe(() => this.refreshAll());
-    this.client.fromEvent('event:state').subscribe(evt => this.set(evt.name, evt.state));
-    this.client.fromEvent('event:reset').subscribe(evt => this.set(evt.name, evt.state));
-    this.client.fromEvent('event:entity').subscribe(evt => this.refresh(evt.name));
+    this.client.fromEvent('connect').pipe(takeUntil(this.destroy$)).subscribe(() => this.refresh());
+    this.client.fromEvent('event:state').pipe(takeUntil(this.destroy$)).subscribe(evt => this.set(evt.name, evt.state));
+    this.client.fromEvent('event:reset').pipe(takeUntil(this.destroy$)).subscribe(evt => this.set(evt.name, evt.state));
+    this.client.fromEvent('event:entity').pipe(takeUntil(this.destroy$)).subscribe(evt => this.refresh(evt.name));
   }
 
   private getStoreNameByType<T extends Store>(type: Type<T>): string {

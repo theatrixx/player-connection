@@ -72,6 +72,12 @@ export class Player {
     this.client.disconnect();
   }
 
+  /** Disconnects from the device and remove all event listeners */
+  destroy(): void {
+    this._client.disconnect();
+    this._state.destroy();
+  }
+
   /** Returns the underlying `PlayerClient` instance */
   get client(): PlayerClient {
     return this._client;
