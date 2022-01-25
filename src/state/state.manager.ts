@@ -2,19 +2,9 @@ import { PlayerClient } from '../player.client';
 import { Observable, Subject } from 'rxjs';
 import { Store, STORE_NAME } from './state.types';
 import { Type } from '../player.models';
-
-import {
-  MediaFileStore,
-  DeviceStateStore,
-  PlaylistStore
-} from './stores';
 import { takeUntil } from 'rxjs/operators';
+import { ALL_STORES } from './stores';
 
-const ALL_STORES: Type<Store>[] = [
-  MediaFileStore,
-  DeviceStateStore,
-  PlaylistStore
-];
 
 /**
  * Container that holds all `Store` instances and handles
