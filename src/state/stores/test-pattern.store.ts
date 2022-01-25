@@ -1,8 +1,8 @@
-import { SimpleEntity } from '../../player.models';
+import { WithId } from '../../player.models';
 import { PlayerClient } from '../../player.client';
 import { Store, StoreName } from '../state.types';
 
-export interface TestPattern extends SimpleEntity {
+export interface TestPattern extends WithId {
   builtIn: boolean;
 }
 
