@@ -66,6 +66,8 @@ export abstract class Store<T = any> {
 export function StoreName(name: string): (constructor: Type<Store>) => void {
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   return function(constructor: any) {
-    constructor['storeName'] = name;
+    constructor[STORE_NAME] = name;
   };
 }
+
+export const STORE_NAME = 'storeName';
