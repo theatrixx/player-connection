@@ -1,4 +1,4 @@
-import { StateManager } from './state';
+import { Settings, SettingsStore, StateManager } from './state';
 import { PlayerClient } from './player.client';
 
 export class Player {
@@ -60,6 +60,25 @@ export class Player {
 
   queueClear(): void {
     this.client.delete('queue/all');
+  }
+
+  /**
+   * Updates the device settings with a 
+   * partial settings object.
+   * 
+   * Useful for setting multiple properties
+   * at once.
+   * */
+  updateSettings(partial: Partial<Settings>): Promise<Settings>
+  /** 
+   * Updates a single device settings key.
+   */
+  updateSettings<K extends keyof Settings>(key: K | Partial<Settings>, value: Settings[K]): Promise<Settings>
+  updateSettings<K extends keyof Settings>(keyOrPartial: K | Partial<Settings>, value?: Settings[K]): Promise<Settings> {
+    if (typeof keyOrPartial === 'string') {
+      keyOrPartial = { [keyOrPartial]: value };
+    }
+    return this._state.getStore(SettingsStore).updatePartial(keyOrPartial);
   }
 
   /** Connect to a MediaPlayer */
