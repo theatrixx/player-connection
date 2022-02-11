@@ -30,8 +30,8 @@ export class Player {
     this.client.emit(withoutPlay ? 'playback:take-next-without-play' : 'playback:take-next');
   } 
   
-  loadPlaylist(playlistId: string, mode: 'replace' | 'append'): void {
-    this.client.post(`queue/${mode}-playlist`, { _id: playlistId })
+  loadPlaylist(playlistId: string, mode: 'replace' | 'append'): Promise<void> {
+    return this.client.post(`queue/${mode}-playlist`, { _id: playlistId })
   }
 
   jump(miliseconds: number, from: 'current' | 'start' | 'end'): void {
@@ -58,8 +58,8 @@ export class Player {
     this.client.emit('playback:goto', { _id: queueItemId });
   }
 
-  queueClear(): void {
-    this.client.delete('queue/all');
+  queueClear(): Promise<void> {
+    return this.client.delete('queue/all');
   }
 
   /**
@@ -73,7 +73,7 @@ export class Player {
   /** 
    * Updates a single device settings key.
    */
-  updateSettings<K extends keyof Settings>(key: K | Partial<Settings>, value: Settings[K]): Promise<Settings>
+  updateSettings<K extends keyof Settings>(key: K, value: Settings[K]): Promise<Settings>
   updateSettings<K extends keyof Settings>(keyOrPartial: K | Partial<Settings>, value?: Settings[K]): Promise<Settings> {
     if (typeof keyOrPartial === 'string') {
       keyOrPartial = { [keyOrPartial]: value };
