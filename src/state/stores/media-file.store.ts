@@ -1,6 +1,6 @@
 import { SimpleEntity } from '../../player.models';
 import { PlayerClient } from '../../player.client';
-import { Store, StoreName } from '../state.types';
+import { Store, StoreName } from '../state.utils';
 
 export interface MediaFile extends SimpleEntity {}
 

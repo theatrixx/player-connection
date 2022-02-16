@@ -1,5 +1,5 @@
 import { Type } from '../../player.models';
-import { Store } from '../state.types';
+import { Store } from '../state.utils';
 import { DeviceStateStore } from './device-state.store';
 
 import { MediaFileStore } from './media-file.store';

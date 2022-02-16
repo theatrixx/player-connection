@@ -1,6 +1,6 @@
 import { PlayerClient } from '../player.client';
 import { Observable, Subject } from 'rxjs';
-import { Store, STORE_NAME } from './state.types';
+import { Store, STORE_NAME } from './state.utils';
 import { Type } from '../player.models';
 import { takeUntil } from 'rxjs/operators';
 import { ALL_STORES } from './stores';

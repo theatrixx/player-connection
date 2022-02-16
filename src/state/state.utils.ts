@@ -29,7 +29,7 @@ export abstract class Store<T = any> {
   /** Returns the current value of the state. */
   get(): T
   /** Returns the current value of a key of the state. */
-  get<K extends keyof T>(key?: K): T[K]
+  get<K extends keyof T>(key: K | undefined): T[K]
   get<K extends keyof T>(key?: K): T | T[K] {
     const state = this.state$.getValue();
     return !key ? state : state[key];
@@ -38,7 +38,7 @@ export abstract class Store<T = any> {
   /** Returns a stream that will emit whenever the state changes. */
   select(): Observable<T>
   /** Returns a stream that will emit whenever a partical key of the state changes. */
-  select<K extends keyof T>(key?: K): Observable<T[K]>
+  select<K extends keyof T>(key: K | undefined): Observable<T[K]>
   select<K extends keyof T>(key?: K): Observable<T | T[K]> {
     const state$ = this.state$.asObservable();
     return !key ? state$ : state$.pipe(
@@ -64,7 +64,6 @@ export abstract class Store<T = any> {
  * indicate its identifying `name`.
  */
 export function StoreName(name: string): (constructor: Type<Store>) => void {
-  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   return function(constructor: any) {
     constructor[STORE_NAME] = name;
   };

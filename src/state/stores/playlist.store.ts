@@ -1,6 +1,6 @@
 import { PlayerClient } from '../../player.client';
 import { SimpleEntity } from '../../player.models';
-import { Store, StoreName } from '../state.types';
+import { Store, StoreName } from '../state.utils';
 
 export interface Playlist extends SimpleEntity {}
 
