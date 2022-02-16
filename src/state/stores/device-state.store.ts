@@ -1,5 +1,5 @@
 import { PlayerClient } from '../../player.client';
-import { Store, StoreName } from '../state.utils';
+import { Store, StoreConfig } from '../state.utils';
 
 export interface DeviceState {
   playState: 'playing' | 'paused' | 'stopped';
@@ -36,16 +36,11 @@ function createInitialDeviceState(): DeviceState {
   }
 }
 
-@StoreName('DeviceState')
+@StoreConfig({ name: 'DeviceState', api: 'device/state' })
 export class DeviceStateStore extends Store<DeviceState> {
 
   constructor(
-    private readonly client: PlayerClient) {
-      super(createInitialDeviceState());
-  }
-
-  async refresh(): Promise<DeviceState> {
-    const state = await this.client.get<DeviceState>('device/state');
-    return this.set(state);
+    protected readonly client: PlayerClient) {
+      super(createInitialDeviceState(), client);
   }
 }

@@ -78,7 +78,7 @@ export class Player {
     if (typeof keyOrPartial === 'string') {
       keyOrPartial = { [keyOrPartial]: value };
     }
-    return this._state.getStore(SettingsStore).updatePartial(keyOrPartial);
+    return this.state.getStore(SettingsStore).updatePartial(keyOrPartial);
   }
 
   /** Connect to a MediaPlayer */
@@ -102,8 +102,8 @@ export class Player {
     return this._client;
   }
 
-  /** Returns the underlying `StoreContainer` instance */
-  get store(): StateManager {
+  /** Returns the underlying `StateManager` instance */
+  get state(): StateManager {
     return this._state;
   }
 

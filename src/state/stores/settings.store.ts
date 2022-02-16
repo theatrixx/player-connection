@@ -1,5 +1,5 @@
 import { PlayerClient } from '../../player.client';
-import { Store, StoreName } from '../state.utils';
+import { Store, StoreConfig } from '../state.utils';
 
 export interface Settings {
   masterIntensity: number;
@@ -81,19 +81,13 @@ function createInitialSettings(): Settings {
   };
 }
 
-@StoreName('Settings')
+
+@StoreConfig({ name: 'Settings', api: 'settings' })
 export class SettingsStore extends Store<Settings> {
 
-  private api = 'settings';
-
   constructor(
-    private readonly client: PlayerClient) {
-      super(createInitialSettings());
-  }
-
-  async refresh(): Promise<Settings> {
-    const state = await this.client.get<Settings>(this.api);
-    return this.set(state);
+    protected readonly client: PlayerClient) {
+      super(createInitialSettings(), client);
   }
 
   async updatePartial(partial: Partial<Settings>): Promise<Settings> {

@@ -1,6 +1,6 @@
 import { PlayerClient } from '../player.client';
 import { Observable, Subject } from 'rxjs';
-import { Store, STORE_NAME } from './state.utils';
+import { Store, STORE_CONFIG,  } from './state.utils';
 import { Type } from '../player.models';
 import { takeUntil } from 'rxjs/operators';
 import { ALL_STORES } from './stores';
@@ -111,6 +111,6 @@ export class StateManager {
   }
 
   private getStoreNameByType<T extends Store>(type: Type<T>): string {
-    return (type as any)[STORE_NAME];
+    return (type as any)[STORE_CONFIG].name;
   }
 }
