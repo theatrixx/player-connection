@@ -1,7 +1,7 @@
 {
-  "name": "@theatrixx/player-connection",
+  "name": "@theatrixx/xpresscue-connect",
   "version": "0.1.1",
-  "description": "Set of classes for interacting with the Theatrixx MediaPlayer",
+  "description": "Set of classes for interacting with the Theatrixx xPressCue",
   "main": "dist/index.js",
   "files": [
     "dist/**/*"
@@ -13,14 +13,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/theatrixx/player-connection.git"
+    "url": "git+https://github.com/theatrixx/xpresscue-connect.git"
   },
   "author": "Theatrixx Technologies",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/theatrixx/player-connection/issues"
+    "url": "https://github.com/theatrixx/xpresscue-connect/issues"
   },
-  "homepage": "https://github.com/theatrixx/player-connection#readme",
+  "homepage": "https://github.com/theatrixx/xpresscue-connect#readme",
   "devDependencies": {
     "@types/socket.io-client": "^1.4.32",
     "rimraf": "^3.0.2",
