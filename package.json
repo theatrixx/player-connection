@@ -1,6 +1,6 @@
 {
   "name": "@theatrixx/xpresscue-connect",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Set of classes for interacting with the Theatrixx xPressCue",
   "main": "dist/index.js",
   "files": [
