@@ -24,12 +24,12 @@
   "homepage": "https://github.com/theatrixx/xpresscue-connect#readme",
   "devDependencies": {
     "@types/socket.io-client": "^1.4.32",
+    "@types/lodash": "^4.14.178",
     "rimraf": "^3.0.2",
     "ts-node": "^9.0.0",
     "typescript": "^4.0.0"
   },
   "dependencies": {
-    "@types/lodash": "^4.14.178",
     "axios": "^0.24.0",
     "lodash": "^4.17.21",
     "rxjs": "6",
