@@ -40,9 +40,14 @@ export interface SimpleEntity extends WithId {
 }
 
 export interface SocketEvents {
+  /** Emitted whenever a single-state value is altered (i.e. Settings) */
   'event:state': StateUpdate;
+  /** Emitted whenever a multi-entity list is altered (i.e. MediaFile) */
   'event:entity': EntityEvent;
+  /** Emitted whenever any value (single-state or multi-entity) needs to be reset with a new value */
   'event:reset': StateUpdate;
+  /** Emited whenever the client successfully connects to a xPressCue device */
   'connect': void;
+  /** Emitted whenever the client is disconnected from a xPressCue device */
   'disconnect': void;
 }

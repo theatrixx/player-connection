@@ -6,8 +6,8 @@ import { ConnectionState } from './player.models';
 import { SocketEvents } from './player.models';
 
 /**
- * Low-level HTTP and Socket.IO wrapper for communicating
- * with the MediaPlayer.
+ * Low-level HTTP (axios) and Socket.IO wrapper for communicating
+ * with the xPressCue over web services.
  */
 export class PlayerClient {
 
@@ -17,28 +17,35 @@ export class PlayerClient {
   private config$ = new BehaviorSubject<ClientConfig>(createDefaultConfig());
 
   private socket: SocketIOClient.Socket | undefined;
-  private http = axios.create();
+  private http = axios.create({ baseURL: this.api });
 
-  connect(config?: ClientConfig): void {
-    if (this.connected) {
-      throw Error('Already connected! Disconnect first.');
-    }
+  connect(config?: ClientConfig): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (this.connected) {
+        reject('Already connected! Disconnect first.');
+      }
+  
+      if (config) {
+        this.config$.next(config);
+      }
+  
+      if (!config && !this.config) {
+        reject('No previous config stored, please provide config in "connect()" call.');
+      }
 
-    if (config) {
-      this.config$.next(config);
-    }
-
-    if (!config && !this.config) {
-      throw Error('No previous config stored, please provide config in "connect()" call.');
-    }
-
-    this.socket = connect(this.baseURL);
-    this.socket.on('connect', () => this.connectionState$.next(ConnectionState.OK));
-    this.socket.on('disconnect', () => this.connectionState$.next(ConnectionState.ERROR));
-
-    for (const [ eventName, subject ] of Object.entries(this.subjects)) {
-      this.socket.on(eventName, (evt: unknown) => subject.next(evt));
-    }
+      const onConnect = () => {
+        this.connectionState$.next(ConnectionState.OK);
+        resolve();
+      }
+  
+      this.socket = connect(this.baseURL);
+      this.socket.on('connect', () => onConnect());
+      this.socket.on('disconnect', () => this.connectionState$.next(ConnectionState.ERROR));
+  
+      for (const [ eventName, subject ] of Object.entries(this.subjects)) {
+        this.socket.on(eventName, (evt: unknown) => subject.next(evt));
+      }
+    });
   }
 
   disconnect(): void {
@@ -63,27 +70,27 @@ export class PlayerClient {
   }
 
   async get<R>(url: string): Promise<R> {
-    const req = await this.http.get(url, { baseURL: this.api });
+    const req = await this.http.get(url);
     return req.data;
   }
 
   async post<D, R>(url: string, data: D): Promise<R> {
-    const req = await this.http.post(url, data, { baseURL: this.api });
+    const req = await this.http.post(url, data);
     return req.data;
   }
 
   async put<D, R>(url: string, data: D): Promise<R> {
-    const req = await this.http.put(url, data, { baseURL: this.api });
+    const req = await this.http.put(url, data);
     return req.data;
   }
 
   async patch<D, R>(url: string, data: D): Promise<R> {
-    const req = await this.http.patch(url, data, { baseURL: this.api });
+    const req = await this.http.patch(url, data);
     return req.data;
   }
 
   async delete<R>(url: string): Promise<R> {
-    const req = await this.http.delete(url, { baseURL: this.api });
+    const req = await this.http.delete(url);
     return req.data;
   }
 

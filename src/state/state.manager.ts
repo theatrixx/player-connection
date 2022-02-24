@@ -62,15 +62,18 @@ export class StateManager {
   get<T>(name: string): T
   /** Gets the current value of store `type` */
   get<T>(type: Type<Store<T>>): T
-  /** Gets the current  */
+  /** Gets the current value of key `key` from store `type` */
   get<T, K extends keyof T>(type: Type<Store<T>>, key: K): T[K]
   get<T, K extends keyof T>(nameOrType: string | Type<Store<T>>, key?: K): T | T[K] {
     const store = this.getStore(nameOrType);
     return store.get(key);
   }
 
+  /** Returns the stream of value changes (Observable) of store `name` */
   select<T>(name: string): Observable<T>
+  /** Returns the stream of value changes (Observable) of store `type` */
   select<T>(type: Type<Store<T>>): Observable<T>
+  /** Returns the stream of value changes (Observable) of the key `key` of store `type` */
   select<T, K extends keyof T>(type: Type<Store<T>>, key: K): Observable<T[K]>
   select<T, K extends keyof T>(nameOrType: string | Type<Store<T>>, key?: K): Observable<T | T[K]> {
     const store = this.getStore(nameOrType);
