@@ -11,6 +11,8 @@ A simple library for interacting with the Theatrixx xPressCue, in the browser or
 Always start by instantiating the base `Player` class. One `Player` class represents one physical xPressCue device.
 
 ```typescript
+import { Player } from '@theatrixx/xpresscue-connect`;
+
 const player = new Player();
 
 // Connect to the device
