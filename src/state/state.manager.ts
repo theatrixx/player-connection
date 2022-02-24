@@ -1,8 +1,8 @@
 import { PlayerClient } from '../player.client';
-import { Observable, Subject } from 'rxjs';
+import { MonoTypeOperatorFunction, Observable, Subject } from 'rxjs';
 import { Store, STORE_CONFIG,  } from './state.utils';
-import { Type } from '../player.models';
-import { takeUntil } from 'rxjs/operators';
+import { EntityEvent, StateUpdate, Type } from '../player.models';
+import { filter, takeUntil } from 'rxjs/operators';
 import { ALL_STORES } from './stores';
 
 
@@ -52,10 +52,21 @@ export class StateManager {
     if (typeof nameOrType !== 'string') {
       nameOrType = this.getStoreNameByType(nameOrType);
     }
-    if (!this.stores.has(nameOrType)) {
+    if (!this.hasStore(nameOrType)) {
       throw Error(`Store '${nameOrType}' does not exist!`);
     }
     return this.stores.get(nameOrType) as S;
+  }
+
+  /** Checks wether the store `type` exists */
+  hasStore(type: Type<Store>): boolean
+  /** Checks wether the store `name` exists */
+  hasStore(name: string): boolean
+  hasStore(nameOrType: string | Type<Store>): boolean {
+    if (typeof nameOrType !== 'string') {
+      nameOrType = this.getStoreNameByType(nameOrType);
+    }
+    return this.stores.has(nameOrType);
   }
 
   /** Gets the current value of store `name` */
@@ -107,13 +118,32 @@ export class StateManager {
   }
 
   private subscribeEvents(): void {
-    this.client.fromEvent('connect').pipe(takeUntil(this.destroy$)).subscribe(() => this.refresh());
-    this.client.fromEvent('event:state').pipe(takeUntil(this.destroy$)).subscribe(evt => this.set(evt.name, evt.state));
-    this.client.fromEvent('event:reset').pipe(takeUntil(this.destroy$)).subscribe(evt => this.set(evt.name, evt.state));
-    this.client.fromEvent('event:entity').pipe(takeUntil(this.destroy$)).subscribe(evt => this.refresh(evt.name));
+    this.client
+      .fromEvent('connect')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.refresh());
+
+    this.client
+      .fromEvent('event:state')
+      .pipe(takeUntil(this.destroy$), this.filterHasStore())
+      .subscribe(evt => this.set(evt.name, evt.state));
+
+    this.client
+      .fromEvent('event:reset')
+      .pipe(takeUntil(this.destroy$), this.filterHasStore())
+      .subscribe(evt => this.set(evt.name, evt.state));
+
+    this.client
+      .fromEvent('event:entity')
+      .pipe(takeUntil(this.destroy$), this.filterHasStore())
+      .subscribe(evt => this.refresh(evt.name));
   }
 
   private getStoreNameByType<T extends Store>(type: Type<T>): string {
     return (type as any)[STORE_CONFIG].name;
+  }
+
+  private filterHasStore<T extends StateUpdate | EntityEvent>(): MonoTypeOperatorFunction<T> {
+    return filter(evt => this.hasStore(evt.name));
   }
 }
