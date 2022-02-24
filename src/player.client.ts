@@ -17,7 +17,7 @@ export class PlayerClient {
   private config$ = new BehaviorSubject<ClientConfig>(createDefaultConfig());
 
   private socket: SocketIOClient.Socket | undefined;
-  private http = axios.create({ baseURL: this.api });
+  private http = axios.create();
 
   connect(config?: ClientConfig): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -28,11 +28,7 @@ export class PlayerClient {
       if (config) {
         this.config$.next(config);
       }
-  
-      if (!config && !this.config) {
-        reject('No previous config stored, please provide config in "connect()" call.');
-      }
-
+      
       const onConnect = () => {
         this.connectionState$.next(ConnectionState.OK);
         resolve();
@@ -70,27 +66,27 @@ export class PlayerClient {
   }
 
   async get<R>(url: string): Promise<R> {
-    const req = await this.http.get(url);
+    const req = await this.http.get(url, { baseURL: this.api });
     return req.data;
   }
 
   async post<D, R>(url: string, data: D): Promise<R> {
-    const req = await this.http.post(url, data);
+    const req = await this.http.post(url, data, { baseURL: this.api });
     return req.data;
   }
 
   async put<D, R>(url: string, data: D): Promise<R> {
-    const req = await this.http.put(url, data);
+    const req = await this.http.put(url, data, { baseURL: this.api });
     return req.data;
   }
 
   async patch<D, R>(url: string, data: D): Promise<R> {
-    const req = await this.http.patch(url, data);
+    const req = await this.http.patch(url, data, { baseURL: this.api });
     return req.data;
   }
 
   async delete<R>(url: string): Promise<R> {
-    const req = await this.http.delete(url);
+    const req = await this.http.delete(url, { baseURL: this.api });
     return req.data;
   }
 
