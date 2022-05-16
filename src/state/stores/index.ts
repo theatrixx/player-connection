@@ -2,6 +2,7 @@ import { Type } from '../../player.models';
 import { Store } from '../state.utils';
 import { DeviceInfoStore } from './device-info.store';
 import { DeviceStateStore } from './device-state.store';
+import { IoStateStore } from './io-state.store';
 
 import { MediaFileStore } from './media-file.store';
 import { PlaylistStore } from './playlist.store';
@@ -14,6 +15,7 @@ export * from './media-file.store';
 export * from './playlist.store';
 export * from './settings.store';
 export * from './test-pattern.store';
+export * from './io-state.store';
 
 export const ALL_STORES: Type<Store>[] = [
   DeviceInfoStore,
@@ -21,5 +23,6 @@ export const ALL_STORES: Type<Store>[] = [
   MediaFileStore,
   PlaylistStore,
   SettingsStore,
-  TestPatternStore
+  TestPatternStore,
+  IoStateStore
 ];

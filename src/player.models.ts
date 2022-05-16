@@ -51,3 +51,13 @@ export interface SocketEvents {
   /** Emitted whenever the client is disconnected from a xPressCue device */
   'disconnect': void;
 }
+
+export interface VideoResolution extends RasterSize {
+  frameRate: number;
+  progressive?: boolean;
+}
+
+export interface RasterSize {
+  width: number;
+  height: number;
+}
