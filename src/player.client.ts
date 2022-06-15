@@ -110,11 +110,11 @@ export class PlayerClient {
     return this.config$.getValue();
   }
 
-  private get baseURL(): string {
+  get baseURL(): string {
     return `http://${this.config.host}:${this.config.port}`
   }
 
-  private get api(): string {
+  get api(): string {
     return `${this.baseURL}/api/`;
   }
 }
