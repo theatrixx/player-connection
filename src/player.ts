@@ -1,5 +1,6 @@
-import { Settings, SettingsStore, StateManager } from './state';
+import { MediaFile, Settings, SettingsStore, StateManager } from './state';
 import { PlayerClient } from './player.client';
+import { ReadStream } from 'fs';
 
 /**
  * This class represents a single xPressCue device.
@@ -129,6 +130,44 @@ export class Player {
       keyOrPartial = { [keyOrPartial]: value };
     }
     return this.state.getStore(SettingsStore).updatePartial(keyOrPartial);
+  }
+
+  /**
+   * Uploads a single Media File
+   * @param file Readable Stream pointing to the file to upload
+   * @param parentFolderId Optional Folder ID to place the uploaded file into,
+   * or `_root` to upload it at the root of the device.
+   * 
+   * Usage:
+   * 
+   * ```typescript
+   * const file = fs.createReadStream('content/my_file.mp4');
+   * const media = await player.uploadMedia(file);
+   * console.log(media); // => { _id: '', name: '', ... }
+   * ```
+   */
+  uploadMedia(file: ReadStream, parentFolderId?: string): Promise<MediaFile>;
+  /**
+   * Uploads multiple new Media File
+   * @param files Array of Readable Stream pointing to the files to upload
+   * @param parentFolderId Optional Folder ID to place the uploaded files into,
+   * or `_root` to upload them at the root of the device.
+   * 
+   * Usage:
+   * 
+   * ```typescript
+   * const file1 = fs.createReadStream('content/my_file.mp4');
+   * const file2 = fs.createReadStream('content/other_file.wav');
+   * const medias = await player.uploadMedia([ file1, file2 ]);
+   * console.log(medias); // => [{ _id: '', name: '', ... }, ...]
+   * ```
+   */
+  uploadMedia(files: ReadStream[], parentFolderId?: string): Promise<MediaFile[]>;
+  async uploadMedia(fileOrFiles: ReadStream | ReadStream[], parentFolderId = '_root'): Promise<MediaFile | MediaFile[]> {
+    const multi = Array.isArray(fileOrFiles);
+    const files = multi ? fileOrFiles : [ fileOrFiles ];
+    const response = await this.client.uploadFiles<any, MediaFile[]>('media', files, { parentFolderId });
+    return multi ? response : response[0];
   }
 
   /** Connect to a xPressCue

@@ -1,6 +1,8 @@
 import { Observable, BehaviorSubject, Subject } from 'rxjs';
 import axios from 'axios';
 import { connect } from 'socket.io-client';
+import FormData from 'form-data';
+import { ReadStream } from 'fs';
 
 import { ConnectionState } from './player.models';
 import { SocketEvents } from './player.models';
@@ -90,6 +92,25 @@ export class PlayerClient {
     return req.data;
   }
 
+  async uploadFiles<D, R>(url: string, files: ReadStream[], data?: D): Promise<R> {
+    const formData = new FormData();
+
+    for (const file of files) {
+      formData.append('files', file);
+    }
+
+    if (data) {
+      formDataFieldsFromObject(data).forEach(([ key, value ]) => formData.append(key, value));
+    }
+    
+    const req = await this.http.post(url, formData, {
+      baseURL: this.api,
+      headers: formData.getHeaders()
+    });
+
+    return req.data;
+  }
+
   get connectionStateChanges(): Observable<ConnectionState> {
     return this.connectionState$.asObservable();
   }
@@ -131,4 +152,14 @@ function createDefaultConfig(): ClientConfig {
     host: '127.0.0.1',
     port: 80
   };
+}
+
+function formDataFieldsFromObject<T extends Record<string, any>>(obj: T): [ string, any ][] {
+  const dataEntries = Object.entries(obj);
+  return dataEntries.map(([ key, value ]) => (
+    [
+      key,
+      typeof value === 'string' ? value : JSON.stringify(value)
+    ]
+  ));
 }
